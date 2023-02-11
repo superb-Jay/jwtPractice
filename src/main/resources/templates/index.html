@@ -34,7 +34,13 @@
 					data:{"email":email,"password":password},
 					type:"POST",
 					success:function(data){
+						alert(JSON.stringify(data));
 						token=data.accessToken;
+						if(token!=null){
+							alert("로그인 성공");
+						} else{
+							alert("로그인 정보를 확인해주세요.");
+						}
 					}
 				});
 			});
@@ -57,7 +63,18 @@
 
 			$("#logout").click(function(){
 
-				token="";
+				$.ajax({
+					url:"logout",
+					type:"POST",
+					beforeSend: function (xhr) {
+						xhr.setRequestHeader("Content-type","application/json");
+						xhr.setRequestHeader("Authorization","Bearer " + token);
+					},
+					success:function(data){
+						alert(JSON.stringify(data));
+
+					}
+				});
 			});
 
 
