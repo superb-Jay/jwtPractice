@@ -2,6 +2,7 @@ package com.example.jwtpractice.jwt;
 
 
 import com.example.jwtpractice.dto.RequestMemberDTO;
+import com.example.jwtpractice.service.TokenService;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -22,6 +23,8 @@ import java.io.IOException;
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
+    private final TokenService tokenService;
+
 
     @Override //모든 요청에 최상단 필터 시큐리티 필터보다 먼저 있음.
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -35,15 +38,18 @@ public class JwtFilter extends OncePerRequestFilter {
         //filter에서 header를 가져옴
         String token = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-        //token 값에서 유효값 (email)을 추출하여 requestMember를 만듦
-        RequestMemberDTO requestMemberDTO = jwtProvider.tokenToRequestMember(token);
+        if (!tokenService.tokenVerification(token)) {
+
+            //token 값에서 유효값 (email)을 추출하여 requestMember를 만듦
+            RequestMemberDTO requestMemberDTO = jwtProvider.tokenToRequestMember(token);
 
 //           분석이 끝난 유저 객체에 있는 정보를 시큐리티컨텍스트 빈객체에 넘겨준다. (정보와, 권한을 넘겨준다.)
-        if (requestMemberDTO != null) {
-            SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
-                    requestMemberDTO,
-                    "",
-                    requestMemberDTO.getAuthorities()));
+            if (requestMemberDTO != null) {
+                SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
+                        requestMemberDTO,
+                        "",
+                        requestMemberDTO.getAuthorities()));
+            }
         }
         filterChain.doFilter(request, response); //해당 필터의 역할은 끝낫고. 다음 필터로 넘긴다.
     }
