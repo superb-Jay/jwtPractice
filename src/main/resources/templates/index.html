@@ -70,8 +70,12 @@
 						xhr.setRequestHeader("Content-type","application/json");
 						xhr.setRequestHeader("Authorization","Bearer " + token);
 					},
-					success:function(data){
-						alert(JSON.stringify(data));
+					success:function(resp){
+						if(resp ='success'){
+							alert("블랙리스트 등록 완료 로그아웃 성공");
+						} else{
+							alert("로그인 정보를 확인해주세요.");
+						}
 
 					}
 				});
@@ -79,7 +83,6 @@
 
 
 		});
-
 
 	</script>
 </head>
