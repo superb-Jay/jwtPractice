@@ -31,16 +31,17 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public TokenDTO signIn(RequestMemberDTO requestMemberDTO) {
-        Member member = memberRepository.findByEmail(requestMemberDTO.getEmail())
-                .orElseThrow(IllegalArgumentException::new);
         try {
+            Member member = memberRepository.findByEmail(requestMemberDTO.getEmail())
+                    .orElseThrow(IllegalArgumentException::new);
             passwordMustBeSame(requestMemberDTO.getPassword(), member.getPassword());
+            String token = jwtTokenProvider.makeJwtToken(member);
+            return new TokenDTO(token);
+
         }catch (IllegalArgumentException e) {
             return null;
         }
 
-        String token = jwtTokenProvider.makeJwtToken(member);
-        return new TokenDTO(token);
     }
 
     private void passwordMustBeSame(String requestPassword, String password) {
